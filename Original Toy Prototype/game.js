@@ -161,11 +161,11 @@ PS.init = function( system, options ) {
 
 	PS.dbLogin( "imgd2900", TEAM, function ( id, user ) {
 		if ( user === PS.ERROR ) {
-			return PS.dbErase( TEAM );
+			return;
 		}
 		PS.dbEvent( TEAM, "startup", user );
-		PS.dbSave( TEAM, PS.CURRENT, { discard : true } );
-	}, { active : false } );
+		PS.dbSend( TEAM, PS.CURRENT, { discard : true } );
+	}, { active : true } );
 };
 
 /*
