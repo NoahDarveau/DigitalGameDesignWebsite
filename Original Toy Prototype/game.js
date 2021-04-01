@@ -140,7 +140,7 @@ PS.init = function( system, options ) {
 	// here as needed
 
 	//change Title
-	PS.statusText("Pachinko");
+	//PS.statusText("Pachinko");
 
 	//Turn off Grid borders
 	PS.border(PS.ALL, PS.ALL, 0);
