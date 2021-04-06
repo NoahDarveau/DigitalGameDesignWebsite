@@ -132,9 +132,15 @@ let onFaderTick = function() {
 }
 
 let collide = function (s1, p1, s2, p2, type) {
+	let pegCollision = false;
 
 	//on collision move coin to random side of peg, unless on side of world
 	//PS.debug("Collision detected: ");
+	for (let i = 0; i < pegList.length; i++) {
+		if (s1 === pegList[i] || s2 === pegList[i]) {
+			pegCollision = true;
+		}
+	}
 	if (type === PS.SPRITE_OVERLAP) {
 		//PS.debug("Type accounted\n");
 		if (PS.spriteMove(s1).x === 0) {
@@ -157,7 +163,9 @@ let collide = function (s1, p1, s2, p2, type) {
 		PS.audioPlay(sounds[PS.random(sounds.length)-1]);
 
 		//change peg color and fade it back
-		PS.spriteSolidColor(s2, faderColor);
+		if (pegCollision) {
+			PS.spriteSolidColor(s2, faderColor);
+		}
 		//if (PS.fade(PS.spriteMove(s2).x, PS.spriteMove(s2).y).rgb !== 0xff7cf9) {
 		//	PS.fade(PS.spriteMove(s2).x, PS.spriteMove(s2).y, 60, {rgb: 0xff7cf9});
 		//}
