@@ -25,8 +25,10 @@ Any value returned is ignored.
 //Global Variables
 let coinList = [];
 let pegList = [];
-let myTimerID;
-let path = {path:"audio\\", volume:0.1};
+let myGameTimerID, myFaderTimerID;
+//let path = {path:"audio\\", volume:0.1};
+let sounds = ["xylo_a4", "xylo_c5", "xylo_d5", "xylo_e5", "xylo_g5", "xylo_a5", "xylo_c6", "xylo_d6", "xylo_e6", "xylo_g6", "xylo_a6", "xylo_c7"];
+let pegColor, faderColor;
 
 let initBoard = function (width, height) {
 
@@ -39,15 +41,19 @@ let initBoard = function (width, height) {
 				if ((j + i) % 3 === 0) {
 					//PS.debug(j + ", " + i + "\n");
 					pegList.push(PS.spriteSolid(1, 1));
+					PS.spriteSolidColor(pegList[pegList.length - 1], pegColor);
 					PS.spriteMove(pegList[pegList.length - 1], j, i);
+					//PS.fade(PS.spriteMove(pegList[pegList.length - 1]).x, PS.spriteMove(pegList[pegList.length - 1]).y, 80, {rgb: faderColor});
 				}
 			}
 		}
 	}
 
 	//add top and bottom covers
-	PS.color(PS.ALL, 0, PS.COLOR_RED);
-	PS.color(PS.ALL, PS.gridSize().height-1, PS.COLOR_RED);
+	//PS.color(PS.ALL, 0, PS.COLOR_RED);
+	//PS.color(PS.ALL, PS.gridSize().height-1, PS.COLOR_RED);
+
+	PS.radius(PS.ALL, PS.ALL, 50);
 
 };
 
@@ -55,73 +61,126 @@ let initBoard = function (width, height) {
 let onTick = function() {
 
 	//move all sprites downward
-	for (let i = 0; i < coinList.length && coinList.length > 0; i++) {
+	let i = 0;
+	while (i < coinList.length && coinList.length > 0) {
 		//PS.debug("Here in moving down: "+i + "\n");
 		PS.spriteMove(coinList[i], PS.spriteMove(coinList[i]).x, PS.spriteMove(coinList[i]).y+1);
 		//PS.debug(PS.spriteMove(coinList[i]).y);
-	}
 
-	//delete all sprites not in bounds for garbage collection
-	for (let i = 0; i < coinList.length && coinList.length > 0; i++) {
+		//delete all sprites not in bounds for garbage collection
 		if (PS.spriteMove(coinList[i]).x >= PS.gridSize().width || PS.spriteMove(coinList[i]).x < 0
 			|| PS.spriteMove(coinList[i]).y >= PS.gridSize().height || PS.spriteMove(coinList[i]).y < 0) {
 			PS.spriteDelete(coinList[i]);
 			coinList.splice(i, 1);
 			i--;
 		}
+		i++;
 	}
+
+	//PS.debug(coinList.length+'\n');
 
 	//Redraw world
 	//redraw pegs
 	for (let i = 0; i < pegList.length; i++) {
-		PS.color(PS.spriteMove(pegList[i]).x, PS.spriteMove(pegList[i]).y, PS.COLOR_BLACK);
+		//PS.color(PS.spriteMove(pegList[i]).x, PS.spriteMove(pegList[i]).y, 64, 31, 62);
 		PS.alpha(PS.spriteMove(pegList[i]).x, PS.spriteMove(pegList[i]).y, 255)
-		PS.radius(PS.spriteMove(pegList[i]).x, PS.spriteMove(pegList[i]).y, 50)
+		//PS.radius(PS.spriteMove(pegList[i]).x, PS.spriteMove(pegList[i]).y, 50)
 	}
 
 	//change coins to circular
-	for (let i = 0; i < coinList.length; i++) {
-		PS.radius(PS.spriteMove(coinList[i]).x, PS.spriteMove(coinList[i]).y, 50)
-	}
+	//for (let i = 0; i < coinList.length; i++) {
+	//	PS.radius(PS.spriteMove(coinList[i]).x, PS.spriteMove(coinList[i]).y, 50)
+	//}
 
 	//redraw borders
-	PS.color(PS.ALL, 0, PS.COLOR_RED);
-	PS.alpha(PS.ALL, 0, 255);
-	PS.radius(PS.ALL, 0, 0);
-	PS.color(PS.ALL, PS.gridSize().height-1, PS.COLOR_RED);
-	PS.alpha(PS.ALL, PS.gridSize().height-1, 255);
-	PS.radius(PS.ALL, PS.gridSize().height-1, 0);
+	//PS.color(PS.ALL, 0, 250, 130, 76);
+	//PS.alpha(PS.ALL, 0, 255);
+	//PS.radius(PS.ALL, 0, 0);
+	//PS.color(PS.ALL, PS.gridSize().height-1, 250, 130, 76);
+	//PS.alpha(PS.ALL, PS.gridSize().height-1, 255);
+	//PS.radius(PS.ALL, PS.gridSize().height-1, 0);
 };
 
+let onFaderTick = function() {
+
+	let pegColors = [];
+	let faderColors = [];
+	let dr, dg, db;
+	let newColor;
+	let currentColors = [];
+	let sign;
+
+	PS.unmakeRGB(pegColor, pegColors);
+	PS.unmakeRGB(faderColor, faderColors);
+
+	dr = (pegColors[0] - faderColors[0]) / 90;
+	dg = (pegColors[1] - faderColors[1]) / 90;
+	db = (pegColors[2] - faderColors[2]) / 90;
+
+	for (let i = 0; i < pegList.length; i++) {
+		if (PS.spriteSolidColor(pegList[i]) > pegColor) {
+
+			PS.unmakeRGB(PS.spriteSolidColor(pegList[i]), currentColors);
+
+			newColor = PS.makeRGB(currentColors[0]+dr, currentColors[1]+dg, currentColors[2]+db);
+
+			PS.spriteSolidColor(pegList[i], newColor);
+		}
+	}
+
+
+}
+
 let collide = function (s1, p1, s2, p2, type) {
-	//TODO: check type of collision
-	//coin on peg or coin on coin
 
-	//For now, just handle all collisions as coin on peg
-	//By moving the peg to either side
-
+	//on collision move coin to random side of peg, unless on side of world
 	//PS.debug("Collision detected: ");
 	if (type === PS.SPRITE_OVERLAP) {
 		//PS.debug("Type accounted\n");
-		if (PS.random(2) === 1) {
+		if (PS.spriteMove(s1).x === 0) {
 			PS.spriteMove(s1, PS.spriteMove(s1).x+1, PS.spriteMove(s1).y);
-			//PS.debug("Moved\n");
-		} else {
+		}
+		else if (PS.spriteMove(s1).x === (PS.gridSize().width - 1)) {
 			PS.spriteMove(s1, PS.spriteMove(s1).x-1, PS.spriteMove(s1).y);
-			//PS.debug("Other Moved\n");
+		}
+		else {
+			if (PS.random(2) === 1) {
+				PS.spriteMove(s1, PS.spriteMove(s1).x + 1, PS.spriteMove(s1).y);
+				//PS.debug("Moved\n");
+			} else {
+				PS.spriteMove(s1, PS.spriteMove(s1).x - 1, PS.spriteMove(s1).y);
+				//PS.debug("Other Moved\n");
+			}
 		}
 
 		//play clink sound
-		PS.audioPlay("clink", path);
+		PS.audioPlay(sounds[PS.random(sounds.length)-1]);
+
+		//change peg color and fade it back
+		PS.spriteSolidColor(s2, faderColor);
+		//if (PS.fade(PS.spriteMove(s2).x, PS.spriteMove(s2).y).rgb !== 0xff7cf9) {
+		//	PS.fade(PS.spriteMove(s2).x, PS.spriteMove(s2).y, 60, {rgb: 0xff7cf9});
+		//}
+
+		//PS.color(PS.spriteMove(s2).x, PS.spriteMove(s2).y, 64, 31, 62);
+
 
 	}
 }
 
-let addCoin = function(x) {
+let addCoin = function(x, y) {
+	let tempx = x;
+	let tempy = y;
 	let temp = PS.spriteSolid(1,1);
-	PS.spriteMove(temp, x, 1);
-	PS.spriteSolidColor(temp, PS.COLOR_BLUE);
+	for (let i = 0; i < pegList.length; i++) {
+		if (tempx === PS.spriteMove(pegList[i]).x && tempy === PS.spriteMove(pegList[i]).y) {
+			tempy++;
+		}
+	}
+	PS.spriteMove(temp, tempx, tempy);
+	PS.spriteSolidColor(temp,129, 233, 121 );
 	PS.spriteCollide(temp, collide);
+	PS.radius(tempx, tempy, 50);
 	coinList.push(temp);
 }
 
@@ -141,24 +200,41 @@ PS.init = function( system, options ) {
 
 	//change Title
 	PS.statusText("Clinkotron 3000");
+	PS.statusColor(160, 206, 217);
+
+	//Change background color
+	PS.gridColor(25, 125, 125);
+
+	//set bead alpha
+	PS.alpha(PS.ALL, PS.ALL, 0);
 
 	//Turn off Grid borders
 	PS.border(PS.ALL, PS.ALL, 0);
 
-	//initialize pegs
+	//set colors
+	pegColor = PS.makeRGB(64, 31, 62);
+	faderColor = PS.makeRGB(64*4, 31*4, 62*4);
+	//PS.debug("Pegcolor: "+pegColor+"\n");
+	//PS.debug("Fadercolor: "+faderColor+"\n");
+
+	//initialize world
 	initBoard(PS.gridSize().width-1, PS.gridSize().height-1);
 
-	//load clink sound
-	PS.audioLoad("clink", path);
+	//load all sounds
+	for (let i = 0; i < sounds.length; i++) {
+		PS.audioLoad(sounds[i]);
+	}
+
 
 	//start onTick timer
-	myTimerID = PS.timerStart(8, onTick);
+	myGameTimerID = PS.timerStart(6, onTick);
+	myFaderTimerID = PS.timerStart(1, onFaderTick);
 
 	// PS.dbLogin() must be called at the END
 	// of the PS.init() event handler (as shown)
 	// DO NOT MODIFY THIS FUNCTION CALL
 	// except as instructed
-
+	/*
 	PS.dbLogin( "imgd2900", TEAM, function ( id, user ) {
 		if ( user === PS.ERROR ) {
 			return;
@@ -166,6 +242,7 @@ PS.init = function( system, options ) {
 		PS.dbEvent( TEAM, "startup", user );
 		PS.dbSend( TEAM, PS.CURRENT, { discard : true } );
 	}, { active : true } );
+	*/
 };
 
 /*
@@ -188,7 +265,7 @@ PS.touch = function( x, y, data, options ) {
 	// over a bead.
 
 	//add coin to top of grid at corresponding x pos
-	addCoin(x);
+	addCoin(x, y);
 
 };
 
