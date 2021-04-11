@@ -72,7 +72,7 @@ let loadLevel = function(gridX, gridY, level) {
 	for (let i = 0; i < tempLevel.length; i++) {
 		let temp = tempLevel[i];
 		PS.color(temp.x, temp.y, temp.color);
-		PS.radius(temp.x.temp.y, 25);
+		PS.radius(temp.x, temp.y, 25);
 	}
 
 };
