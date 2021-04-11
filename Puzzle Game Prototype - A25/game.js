@@ -43,12 +43,12 @@ If you don't use JSHint (or are using it with a configuration file), you can saf
 let numLevels = 1;
 let levels = [];
 let parsedLevels = [];
+let occupied = [];
 
 
 let parseLevel = function(image) {
 	let tempLevel = [];
 	let data = image.data;
-
 
 	PS.debug(image.length);
 	for (let i = 0; i < data.length; i++) {
@@ -57,6 +57,22 @@ let parseLevel = function(image) {
 	}
 
 	parsedLevels.push(tempLevel);
+};
+
+let loadLevel = function(gridX, gridY, level) {
+	PS.gridSize(gridX, gridY);
+
+	occupied = [];
+
+	let tempLevel = parsedLevels[level - 1];
+
+	for (let i = 0; i < tempLevel.length; i++) {
+		let temp = tempLevel[i];
+		PS.color(temp.x, temp.y, temp.color);
+		PS.radius(temp.x. temp.y, 25);
+	}
+
+
 };
 
 /*
@@ -100,6 +116,8 @@ PS.init = function( system, options ) {
 	for (let i = 1; i < numLevels+1; i++) {
 		levels.push(PS.imageLoad("Levels/level"+i+".gif", parseLevel, 1));
 	}
+
+	loadLevel(1);
 
 	// Change this TEAM constant to your team name,
 	// using ONLY alphabetic characters (a-z).
