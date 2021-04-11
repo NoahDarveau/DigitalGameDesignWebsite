@@ -44,8 +44,6 @@ let numLevels = 1;
 let levels = [];
 let parsedLevels = [];
 let occupied = [];
-let sem = 1;
-
 
 let parseLevel = function(image) {
 	let tempLevel = [];
@@ -57,10 +55,9 @@ let parseLevel = function(image) {
 		tempLevel.push(temp);
 	}
 
-	parsedLevels.push(tempLevel);
-	sem = 0;
-
-	PS.debug("here");
+	if (image.source === "level1.gif") {
+		loadLevel(8, 8, 1);
+	}
 };
 
 let loadLevel = function(gridX, gridY, level) {
