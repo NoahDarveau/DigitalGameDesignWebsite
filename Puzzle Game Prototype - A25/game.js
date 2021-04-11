@@ -59,6 +59,8 @@ let parseLevel = function(image) {
 
 	parsedLevels.push(tempLevel);
 	sem = 0;
+
+	PS.debug("here");
 };
 
 let loadLevel = function(gridX, gridY, level) {
@@ -119,9 +121,7 @@ PS.init = function( system, options ) {
 		levels.push(PS.imageLoad("Levels/level"+i+".gif", parseLevel, 1));
 	}
 
-	//while (sem === 1) {PS.debug(sem+'\n');}
 
-	//loadLevel(8, 8, 1);
 
 	// Change this TEAM constant to your team name,
 	// using ONLY alphabetic characters (a-z).
