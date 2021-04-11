@@ -49,15 +49,12 @@ let parseLevel = function(image) {
 	let tempLevel = [];
 	let data = image.data;
 
-	PS.debug(data.length+'/n');
+	PS.debug(data.length+'\n');
 	for (let i = 0; i < data.length; i++) {
 		let temp = {x: i % image.width, y: Math.floor(i / image.height), color: data[i]}
 		tempLevel.push(temp);
 	}
 
-	if (image.source === "Levels/level1.gif") {
-		loadLevel(8, 8, 1);
-	}
 };
 
 let loadLevel = function(gridX, gridY, level) {
@@ -65,10 +62,9 @@ let loadLevel = function(gridX, gridY, level) {
 
 	occupied = [];
 
-	PS.debug("here");
+	PS.debug(parsedLevels.length);
 
 	let tempLevel = parsedLevels[level - 1];
-	PS.debug(tempLevel.length);
 
 	for (let i = 0; i < tempLevel.length; i++) {
 		let temp = tempLevel[i];
@@ -120,7 +116,7 @@ PS.init = function( system, options ) {
 		levels.push(PS.imageLoad("Levels/level"+i+".gif", parseLevel, 1));
 	}
 
-
+	loadLevel(8, 8, 1);
 
 	// Change this TEAM constant to your team name,
 	// using ONLY alphabetic characters (a-z).

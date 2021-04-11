@@ -1,7 +1,6 @@
 /*
 game.js for Perlenspiel 3.3.x
 Last revision: 2021-03-24 (BM)
-
 The following comment lines are for JSHint <https://jshint.com>, a tool for monitoring code quality.
 You may find them useful if your development environment is configured to support JSHint.
 If you don't use JSHint (or are using it with a configuration file), you can safely delete these lines.
@@ -418,4 +417,3 @@ PS.shutdown = function( options ) {
 
 	// Add code here to tidy up when Perlenspiel is about to close.
 };
-
