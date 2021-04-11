@@ -49,13 +49,13 @@ let parseLevel = function(image) {
 	let tempLevel = [];
 	let data = image.data;
 
-	//PS.debug(data.length);
+	PS.debug(data.length+'/n');
 	for (let i = 0; i < data.length; i++) {
 		let temp = {x: i % image.width, y: Math.floor(i / image.height), color: data[i]}
 		tempLevel.push(temp);
 	}
 
-	if (image.source === "level1.gif") {
+	if (image.source === "Levels/level1.gif") {
 		loadLevel(8, 8, 1);
 	}
 };
