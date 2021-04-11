@@ -65,6 +65,7 @@ let loadLevel = function(gridX, gridY, level) {
 	occupied = [];
 
 	let tempLevel = parsedLevels[level - 1];
+	PS.debug(tempLevel);
 
 	for (let i = 0; i < tempLevel.length; i++) {
 		let temp = tempLevel[i];
