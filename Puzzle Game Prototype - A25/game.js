@@ -44,9 +44,11 @@ let numLevels = 1;
 let levels = [];
 let parsedLevels = [];
 let occupied = [];
+let sem = 1;
 
 
 let parseLevel = function(image) {
+	sem = 1;
 	let tempLevel = [];
 	let data = image.data;
 
@@ -57,6 +59,7 @@ let parseLevel = function(image) {
 	}
 
 	parsedLevels.push(tempLevel);
+	sem = 0;
 };
 
 let loadLevel = function(gridX, gridY, level) {
@@ -64,15 +67,16 @@ let loadLevel = function(gridX, gridY, level) {
 
 	occupied = [];
 
+	while (sem === 1) {}
+
 	let tempLevel = parsedLevels[level - 1];
 	PS.debug(tempLevel.length);
 
 	for (let i = 0; i < tempLevel.length; i++) {
 		let temp = tempLevel[i];
 		PS.color(temp.x, temp.y, temp.color);
-		PS.radius(temp.x. temp.y, 25);
+		PS.radius(temp.x.temp.y, 25);
 	}
-
 
 };
 
