@@ -67,8 +67,6 @@ let loadLevel = function(gridX, gridY, level) {
 
 	occupied = [];
 
-	while (sem === 1) {}
-
 	let tempLevel = parsedLevels[level - 1];
 	PS.debug(tempLevel.length);
 
@@ -121,6 +119,8 @@ PS.init = function( system, options ) {
 	for (let i = 1; i < numLevels+1; i++) {
 		levels.push(PS.imageLoad("Levels/level"+i+".gif", parseLevel, 1));
 	}
+
+	while (sem === 1) {}
 
 	loadLevel(8, 8, 1);
 
