@@ -117,7 +117,7 @@ PS.init = function( system, options ) {
 		levels.push(PS.imageLoad("Levels/level"+i+".gif", parseLevel, 1));
 	}
 
-	loadLevel(1);
+	loadLevel(8, 8, 1);
 
 	// Change this TEAM constant to your team name,
 	// using ONLY alphabetic characters (a-z).
