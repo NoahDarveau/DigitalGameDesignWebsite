@@ -48,11 +48,10 @@ let sem = 1;
 
 
 let parseLevel = function(image) {
-	sem = 1;
 	let tempLevel = [];
 	let data = image.data;
 
-	PS.debug(image.length);
+	PS.debug(data.length);
 	for (let i = 0; i < data.length; i++) {
 		let temp = {x: i % image.width, y: Math.floor(i / image.height), color: data[i]}
 		tempLevel.push(temp);
