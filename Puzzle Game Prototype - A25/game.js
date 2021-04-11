@@ -55,6 +55,8 @@ let parseLevel = function(image) {
 		tempLevel.push(temp);
 	}
 
+	parsedLevels.push(tempLevel);
+
 };
 
 let loadLevel = function(gridX, gridY, level) {
