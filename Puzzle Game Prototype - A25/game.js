@@ -42,14 +42,13 @@ If you don't use JSHint (or are using it with a configuration file), you can saf
 //Global Variables
 let numLevels = 1;
 let levels = [];
-let parsedLevels;
+let parsedLevels = [];
 
 
 let parseLevel = function(image) {
 	let tempLevel = [];
 	let data = image.data;
 
-	PS.debug("here");
 
 	PS.debug(image.length);
 	for (let i = 0; i < data.length; i++) {
