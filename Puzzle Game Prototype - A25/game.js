@@ -49,7 +49,7 @@ let parseLevel = function(image) {
 	let tempLevel = [];
 	let data = image.data;
 
-	PS.debug(data.length);
+	//PS.debug(data.length);
 	for (let i = 0; i < data.length; i++) {
 		let temp = {x: i % image.width, y: Math.floor(i / image.height), color: data[i]}
 		tempLevel.push(temp);
@@ -64,6 +64,8 @@ let loadLevel = function(gridX, gridY, level) {
 	PS.gridSize(gridX, gridY);
 
 	occupied = [];
+
+	PS.debug("here");
 
 	let tempLevel = parsedLevels[level - 1];
 	PS.debug(tempLevel.length);
