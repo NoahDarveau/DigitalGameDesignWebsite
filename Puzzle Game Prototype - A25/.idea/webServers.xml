@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="998dca5f-dc5b-4520-a072-f8ae94abd7a2" name="local server" url="http://localhost">
+        <fileTransfer mountedRoot="C:\Users\hocke\Desktop\School\Digital Game Design" accessType="MOUNT" port="0" />
+      </webServer>
+    </option>
+  </component>
+</project>

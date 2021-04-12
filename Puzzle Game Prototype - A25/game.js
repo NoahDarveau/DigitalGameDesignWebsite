@@ -43,13 +43,20 @@ If you don't use JSHint (or are using it with a configuration file), you can saf
 let numLevels = 1;
 let levels = [];
 let parsedLevels = [];
-let occupied = [];
+
+let tempPath = [];
+let setPaths = []
+let startSpots = [];
+let isDrawing;
+let currentColor;
+let numFinished = 0;
+let startLocation;
+
 
 let parseLevel = function(image) {
 	let tempLevel = [];
 	let data = image.data;
 
-	PS.debug(data.length+'\n');
 	for (let i = 0; i < data.length; i++) {
 		let temp = {x: i % image.width, y: Math.floor(i / image.height), color: data[i]}
 		tempLevel.push(temp);
@@ -58,27 +65,76 @@ let parseLevel = function(image) {
 	parsedLevels.push(tempLevel);
 
 	if (image.source === "Levels/level1.gif") {
-		loadLevel(8, 8, 1);
+		loadLevel(5, 5, 1);
 	}
 };
 
 let loadLevel = function(gridX, gridY, level) {
 	PS.gridSize(gridX, gridY);
 
-	occupied = [];
-
-	PS.debug("here");
-
 	let tempLevel = parsedLevels[level - 1];
-	PS.debug(tempLevel.length);
 
 	for (let i = 0; i < tempLevel.length; i++) {
 		let temp = tempLevel[i];
 		PS.color(temp.x, temp.y, temp.color);
-		PS.radius(temp.x, temp.y, 25);
+		if (PS.color(temp.x, temp.y) !== PS.COLOR_WHITE) {
+			PS.radius(temp.x, temp.y, 50);
+			startSpots.push({x: temp.x, y: temp.y});
+		}
 	}
 
 };
+
+let breakPath = function() {
+	for (let i = 0; i < tempPath.length; i++) {
+		PS.color(tempPath[i].x, tempPath[i].y, PS.COLOR_WHITE);
+	}
+
+	tempPath = [];
+	isDrawing = false;
+};
+
+let isStartSpot = function(x, y) {
+	for(let i = 0; i < startSpots.length; i++) {
+		if (x === startSpots[i].x && y === startSpots[i].y) {
+			return true;
+		}
+	}
+
+	return false;
+};
+
+let pushToSetPath = function() {
+	for (let i = 0; i < tempPath.length; i++) {
+		setPaths.push(tempPath[i]);
+	}
+	tempPath = [];
+};
+
+let clearColor = function(color) {
+	let flag = false;
+	for (let i = 0; i < setPaths.length; i++) {
+		if (PS.color(setPaths[i].x, setPaths[i].y) === color) {
+			PS.color(setPaths[i].x, setPaths[i].y, PS.COLOR_WHITE);
+			//PS.debug("Clearing color "+color+'\n');
+			flag = true;
+		}
+	}
+	let j = 0;
+	while (j > 0 && j < setPaths.length) {
+		if (PS.color(setPaths[j].x, setPaths[j].y) === PS.COLOR_WHITE) {
+			//PS.debug("here");
+			setPaths.splice(j, 1);
+			j--;
+		}
+		j++;
+	}
+
+	if (flag) {
+		numFinished--;
+		//PS.debug("Subtracting a finish\n");
+	}
+}
 
 /*
 PS.init( system, options )
@@ -106,7 +162,9 @@ PS.init = function( system, options ) {
 	// Uncomment the following code line and change
 	// the x and y parameters as needed.
 
-	 PS.gridSize( 8, 8 );
+	 PS.gridSize( 5, 5 );
+
+	 PS.radius(PS.ALL, PS.ALL, 0);
 
 	// This is also a good place to display
 	// your game title or a welcome message
@@ -114,7 +172,7 @@ PS.init = function( system, options ) {
 	// Uncomment the following code line and
 	// change the string parameter as needed.
 
-	// PS.statusText( "Game" );
+	PS.statusText( "Connect The Dots" );
 
 	// Add any other initialization code you need here.
 
@@ -158,6 +216,7 @@ This function doesn't have to do anything. Any value returned is ignored.
 */
 
 PS.touch = function( x, y, data, options ) {
+
 	// Uncomment the following code line
 	// to inspect x/y parameters:
 
@@ -165,6 +224,21 @@ PS.touch = function( x, y, data, options ) {
 
 	// Add code here for mouse clicks/touches
 	// over a bead.
+
+	if (isStartSpot(x, y)) {
+		isDrawing = true;
+		currentColor = PS.color(x, y);
+		startLocation = {x: x, y: y};
+		clearColor(currentColor);
+	}
+
+	//PS.debug(PS.color(x, y)+'\n');
+
+	if (numFinished < 4) {
+		PS.statusText("Connect The Dots");
+	}
+
+
 };
 
 /*
@@ -183,6 +257,25 @@ PS.release = function( x, y, data, options ) {
 	// PS.debug( "PS.release() @ " + x + ", " + y + "\n" );
 
 	// Add code here for when the mouse button/touch is released over a bead.
+
+	//PS.debug("x: "+x+", y: "+y+'\n');
+
+	if (isDrawing && isStartSpot(x, y) && PS.color(x, y) === currentColor && (x !== startLocation.x || y !== startLocation.y)) {
+		numFinished++;
+		pushToSetPath();
+		isDrawing = false;
+	}
+	else {
+		breakPath();
+	}
+
+	if (numFinished >= 4) {
+		PS.statusText("YOU WIN");
+	}
+
+	//PS.debug(numFinished);
+
+
 };
 
 /*
@@ -201,6 +294,23 @@ PS.enter = function( x, y, data, options ) {
 	// PS.debug( "PS.enter() @ " + x + ", " + y + "\n" );
 
 	// Add code here for when the mouse cursor/touch enters a bead.
+
+	if (isDrawing) {
+		if (!isStartSpot(x, y)) {
+			if (PS.color(x, y) === PS.COLOR_WHITE) {
+				tempPath.push({x: x, y: y});
+				PS.color(x, y, currentColor);
+			}
+			else {
+				breakPath();
+			}
+		}
+		else if (isStartSpot(x, y) && PS.color(x, y) !== currentColor) {
+			breakPath();
+		}
+
+	}
+
 };
 
 /*
@@ -234,6 +344,8 @@ PS.exitGrid = function( options ) {
 	// PS.debug( "PS.exitGrid() called\n" );
 
 	// Add code here for when the mouse cursor/touch moves off the grid.
+
+	breakPath();
 };
 
 /*
