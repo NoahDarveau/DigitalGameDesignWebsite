@@ -52,7 +52,8 @@ Any value returned is ignored.
 let myTimerID;
 let frameRate = 30;
 
-let levels = ["level1"];
+let numLevels = 2;
+let currentLevel = 1;
 let sounds = ["Jump", "Win"]
 let parsedLevels = [];
 let winSoundDone = true;
@@ -95,6 +96,8 @@ let parseLevel = function(image) {
 }
 
 let loadLevel = function(level) {
+	resetBoard();
+
 	let tempLevel = parsedLevels[level-1];
 	let playerStart = {x: 0, y: PS.gridSize().height-1};
 
@@ -116,14 +119,23 @@ let loadLevel = function(level) {
 		}
 	}
 
-	playerSprite = PS.spriteSolid(1, 1);
-	PS.spriteAxis(playerSprite, 0, 1);
+	if (currentLevel === 1) {
+		playerSprite = PS.spriteSolid(1, 1);
+		PS.spriteAxis(playerSprite, 0, 1);
+	}
+
 	PS.spriteMove(playerSprite, playerStart.x, playerStart.y);
 	PS.spriteSolidColor(playerSprite, PS.COLOR_WHITE);
 
 	updateLighting();
 
-	myTimerID = PS.timerStart(60/frameRate, onTick);
+	if (currentLevel === 1) {
+		myTimerID = PS.timerStart(60 / frameRate, onTick);
+	}
+
+	if (currentLevel < numLevels) {
+		PS.imageLoad("Levels/level" + (currentLevel + 1) + ".gif", parseLevel, 1);
+	}
 
 	/*
 	for (let i = 0; i < 32; i++ ) {
@@ -152,7 +164,7 @@ let tryMove = function(direction) {
 	if (playerMoveCooldown <= 0) {
 		//Move in that direction
 		if (PS.spriteMove(playerSprite).x + direction >= 0 && PS.spriteMove(playerSprite).x + direction < PS.gridSize().width) {
-			PS.spriteMove(playerSprite, PS.spriteMove(playerSprite).x + direction, PS.spriteMove(playerSprite).y);
+			PS.spriteMove(playerSprite, getNextX(direction), PS.spriteMove(playerSprite).y);
 			playerMoveCooldown = playerMoveSlowdown;
 			updateLighting();
 		}
@@ -214,6 +226,15 @@ let calcLightLevel = function(dx, dy) {
 	return 175 / (distance * darknessFactor);
 };
 
+let getNextX = function(direction) {
+	if (PS.data(PS.spriteMove(playerSprite).x + direction, getNextY()) === "WALL") {
+		return PS.spriteMove(playerSprite).x;
+	}
+	else {
+		return PS.spriteMove(playerSprite).x + direction;
+	}
+}
+
 let getNextY = function() {
 	let startY = PS.spriteMove(playerSprite).y;
 	let endY = Math.floor(PS.spriteMove(playerSprite).y + player.dy);
@@ -258,18 +279,45 @@ let redrawWorld = function () {
 
 let checkWin = function () {
 	if (PS.data(PS.spriteMove(playerSprite).x, PS.spriteMove(playerSprite).y) === "GOAL") {
-		PS.statusText("THANKS FOR PLAYING THE DEMO!");
+		if (currentLevel < numLevels) {
+			PS.statusText("Level Passed");
+		}
+		else {
+			PS.statusText("THANKS FOR PLAYING THE DEMO!");
+		}
 		if (winSoundDone) {
-			PS.audioPlay(sounds[1], {path: "Sounds/", fileTypes: ["wav"], volume: 0.35, onLoad: updateWinSoundDone, onEnd: updateWinSoundDone});
+			PS.audioPlay(sounds[1], {path: "Sounds/", fileTypes: ["wav"], volume: 0.35, onLoad: updateWinSoundDone, onEnd: nextLevel});
 		}
 	}
 	else if (PS.data(PS.spriteMove(playerSprite).x, PS.spriteMove(playerSprite).y) === "SECRET") {
-		PS.statusText("Congrats, you found the Super Secret Spot!");
+		PS.statusText("Congrats, you found a Super Secret Spot!");
+	}
+	else{
+		PS.statusText( "Touch Gray" );
 	}
 }
 
 let updateWinSoundDone = function() {
 	winSoundDone = !winSoundDone;
+}
+
+let nextLevel = function() {
+	if (currentLevel < numLevels) {
+		currentLevel++;
+		loadLevel(currentLevel);
+		winSoundDone = true;
+	}
+}
+
+let resetBoard = function() {
+	PS.gridSize( 32, 32 );
+	PS.border(PS.ALL, PS.ALL, 0);
+	PS.gridColor(PS.COLOR_BLACK);
+	PS.color(PS.ALL, PS.ALL, PS.COLOR_BLACK);
+	PS.statusText( "Touch Gray" );
+	PS.statusColor(PS.COLOR_GRAY_LIGHT);
+
+	goalCoords = [];
 }
 
 PS.init = function( system, options ) {
@@ -288,21 +336,16 @@ PS.init = function( system, options ) {
 	// Uncomment the following code line and change
 	// the x and y parameters as needed.
 
-	PS.gridSize( 50, 50 );
-	PS.border(PS.ALL, PS.ALL, 0);
-	PS.gridColor(PS.COLOR_BLACK);
-	PS.color(PS.ALL, PS.ALL, PS.COLOR_BLACK);
+	resetBoard();
 
 	PS.imageLoad("Levels/level1.gif", parseLevel, 1);
+
 
 	// This is also a good place to display
 	// your game title or a welcome message
 	// in the status line above the grid.
 	// Uncomment the following code line and
 	// change the string parameter as needed.
-
-	PS.statusText( "Touch Gray" );
-	PS.statusColor(PS.COLOR_GRAY_LIGHT);
 
 	PS.keyRepeat(true, 1, 1);
 
