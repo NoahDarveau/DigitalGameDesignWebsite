@@ -237,7 +237,7 @@ let updateLightingRayTracing = function() {
 				if ((dy !== 0 || dx !== 0) && (ray[i][0] >= 0 && ray[i][0] < PS.gridSize().width && ray[i][1] >= 0 && ray[i][1] < PS.gridSize().height)
 					&& PS.data(ray[i][0], ray[i][1]) !== "WALL") {
 
-					let lightLevel = calcLightLevel(dx, dy);
+					let lightLevel = calcLightLevel(PS.spriteMove(playerSprite).x - ray[i][0], PS.spriteMove(playerSprite).y - ray[i][1]);
 					PS.color(ray[i][0], ray[i][1], lightLevel, lightLevel, lightLevel);
 				}
 
