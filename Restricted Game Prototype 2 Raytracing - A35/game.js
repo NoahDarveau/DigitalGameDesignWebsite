@@ -77,7 +77,7 @@ let goalCoords = [];
 
 let gravity = 0.175;
 let darknessFactor = 2;
-let lightRadius = 4;
+let lightRadius = 20;
 
 let parseLevel = function(image) {
 	let tempLevel = [];
