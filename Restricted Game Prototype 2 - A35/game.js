@@ -52,11 +52,12 @@ Any value returned is ignored.
 let myTimerID;
 let frameRate = 30;
 
-let numLevels = 2;
+let numLevels = 4;
 let currentLevel = 1;
-let sounds = ["Jump", "Win"]
+let sounds = ["Jump", "Win", "EndGame"];
 let parsedLevels = [];
 let winSoundDone = true;
+let musicChannel;
 
 let player = {
 
@@ -129,9 +130,7 @@ let loadLevel = function(level) {
 
 	updateLighting();
 
-	if (currentLevel === 1) {
-		myTimerID = PS.timerStart(60 / frameRate, onTick);
-	}
+	myTimerID = PS.timerStart(60 / frameRate, onTick);
 
 	if (currentLevel < numLevels) {
 		PS.imageLoad("Levels/level" + (currentLevel + 1) + ".gif", parseLevel, 1);
@@ -227,7 +226,7 @@ let calcLightLevel = function(dx, dy) {
 };
 
 let getNextX = function(direction) {
-	if (PS.data(PS.spriteMove(playerSprite).x + direction, getNextY()) === "WALL") {
+	if (PS.data(PS.spriteMove(playerSprite).x + direction, PS.spriteMove(playerSprite).y) === "WALL") {
 		return PS.spriteMove(playerSprite).x;
 	}
 	else {
@@ -282,10 +281,8 @@ let checkWin = function () {
 		if (currentLevel < numLevels) {
 			PS.statusText("Level Passed");
 		}
-		else {
-			PS.statusText("THANKS FOR PLAYING THE DEMO!");
-		}
 		if (winSoundDone) {
+			PS.timerStop(myTimerID);
 			PS.audioPlay(sounds[1], {path: "Sounds/", fileTypes: ["wav"], volume: 0.35, onLoad: updateWinSoundDone, onEnd: nextLevel});
 		}
 	}
@@ -307,6 +304,9 @@ let nextLevel = function() {
 		loadLevel(currentLevel);
 		winSoundDone = true;
 	}
+	else {
+		winGame();
+	}
 }
 
 let resetBoard = function() {
@@ -318,6 +318,29 @@ let resetBoard = function() {
 	PS.statusColor(PS.COLOR_GRAY_LIGHT);
 
 	goalCoords = [];
+}
+
+let winGame = function() {
+	PS.audioFade(musicChannel, PS.CURRENT, 0);
+	PS.audioPlay(sounds[2], {path: "Sounds/", fileTypes: ["wav"], volume: 0.35});
+	PS.fade(PS.ALL, PS.ALL, 240, {onEnd: fadeToBlack});
+	PS.statusText("Finally");
+	PS.color(PS.ALL, PS.ALL, PS.COLOR_WHITE);
+}
+
+let getChannel = function(data) {
+	musicChannel = data.channel;
+}
+
+let fadeToBlack = function() {
+	PS.color(PS.ALL, PS.ALL, PS.COLOR_BLACK);
+	PS.statusFade(240, {onEnd: null});
+	PS.statusText("Clarity");
+	PS.statusColor(PS.COLOR_BLACK);
+
+	setTimeout(function(){
+		location.reload();
+	}, 8500);
 }
 
 PS.init = function( system, options ) {
@@ -353,7 +376,7 @@ PS.init = function( system, options ) {
 		PS.audioLoad(sounds[i], {path: "Sounds/", fileTypes: ["wav"]});
 	}
 
-	PS.audioLoad("Music", {path: "Music/", fileTypes: ["mp3"], loop: true, autoplay: true, volume: 0.15});
+	PS.audioLoad("Music", {path: "Music/", fileTypes: ["mp3"], loop: true, autoplay: true, volume: 0.15, onLoad: getChannel});
 
 	// Add any other initialization code you need here.
 
