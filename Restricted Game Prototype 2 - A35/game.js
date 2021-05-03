@@ -164,7 +164,7 @@ let initJump = function() {
 		player.dy = player.jumpPower;
 		player.onGround = false;
 
-		PS.audioPlay("jump", {path: "Sounds/", fileTypes: ["wav"]});
+		PS.audioPlay("Jump", {path: "Sounds/", fileTypes: ["wav"]});
 	}
 }
 
