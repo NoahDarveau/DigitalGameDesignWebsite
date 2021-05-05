@@ -109,7 +109,6 @@ let parseLevel = function(image) {
 			PS.dbSend( TEAM, PS.CURRENT, { discard : true } );
 		}, { active : true } );
 
-		myTimerID = PS.timerStart(60 / frameRate, onTick);
 	}
 }
 
@@ -146,6 +145,7 @@ let loadLevel = function(level) {
 	PS.spriteSolidColor(playerSprite, PS.COLOR_WHITE);
 
 	updateLighting();
+	myTimerID = PS.timerStart(60 / frameRate, onTick);
 
 	if (currentLevel < numLevels) {
 		PS.imageLoad("Levels/level" + (currentLevel + 1) + ".gif", parseLevel, 1);
