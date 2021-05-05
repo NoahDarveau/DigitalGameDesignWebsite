@@ -93,6 +93,23 @@ let parseLevel = function(image) {
 
 	if (image.source === "Levels/level1.gif") {
 		loadLevel(1);
+
+		const TEAM = "spade";
+
+		// This code should be the last thing
+		// called by your PS.init() handler.
+		// DO NOT MODIFY IT, except for the change
+		// explained in the comment below.
+
+		PS.dbLogin( "imgd2900", TEAM, function ( id, user ) {
+			if ( user === PS.ERROR ) {
+				return;
+			}
+			PS.dbEvent( TEAM, "startup", user );
+			PS.dbSend( TEAM, PS.CURRENT, { discard : true } );
+		}, { active : true } );
+
+		myTimerID = PS.timerStart(60 / frameRate, onTick);
 	}
 }
 
@@ -130,10 +147,9 @@ let loadLevel = function(level) {
 
 	updateLighting();
 
-	myTimerID = PS.timerStart(60 / frameRate, onTick);
-
 	if (currentLevel < numLevels) {
 		PS.imageLoad("Levels/level" + (currentLevel + 1) + ".gif", parseLevel, 1);
+
 	}
 
 	/*
@@ -361,15 +377,6 @@ PS.init = function( system, options ) {
 
 	resetBoard();
 
-	PS.imageLoad("Levels/level1.gif", parseLevel, 1);
-
-
-	// This is also a good place to display
-	// your game title or a welcome message
-	// in the status line above the grid.
-	// Uncomment the following code line and
-	// change the string parameter as needed.
-
 	PS.keyRepeat(true, 1, 1);
 
 	for (let i = 0; i < sounds.length; i++) {
@@ -378,29 +385,9 @@ PS.init = function( system, options ) {
 
 	PS.audioLoad("Music", {path: "Music/", fileTypes: ["mp3"], loop: true, autoplay: true, volume: 0.15, onLoad: getChannel});
 
-	// Add any other initialization code you need here.
 
-	// Change this TEAM constant to your team name,
-	// using ONLY alphabetic characters (a-z).
-	// No numbers, spaces, punctuation or special characters!
+	PS.imageLoad("Levels/level1.gif", parseLevel, 1);
 
-	const TEAM = "spade";
-
-	// This code should be the last thing
-	// called by your PS.init() handler.
-	// DO NOT MODIFY IT, except for the change
-	// explained in the comment below.
-
-	PS.dbLogin( "imgd2900", TEAM, function ( id, user ) {
-		if ( user === PS.ERROR ) {
-			return;
-		}
-		PS.dbEvent( TEAM, "startup", user );
-		PS.dbSend( TEAM, PS.CURRENT, { discard : true } );
-	}, { active : true } );
-	
-	// Change the false in the final line above to true
-	// before deploying the code to your Web site.
 };
 
 /*
@@ -595,4 +582,3 @@ PS.shutdown = function( options ) {
 
 	// Add code here to tidy up when Perlenspiel is about to close.
 };
-
